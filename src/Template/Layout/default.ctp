@@ -13,7 +13,6 @@
  * @license       http://www.opensource.org/licenses/mit-license.php MIT License
  */
 
-$cakeDescription = 'CakePHP: the rapid development php framework';
 ?>
 <!DOCTYPE html>
 <html>
@@ -21,13 +20,16 @@ $cakeDescription = 'CakePHP: the rapid development php framework';
     <?= $this->Html->charset() ?>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>
-        <?= $cakeDescription ?>:
-        <?= $this->fetch('title') ?>
+      Translation Memory Repository
     </title>
     <?= $this->Html->meta('icon') ?>
 
     <?= $this->Html->css('base.css') ?>
     <?= $this->Html->css('cake.css') ?>
+    <?= $this->Html->css('tmrepository.css') ?>
+
+    <?= $this->Html->script('jquery-3.1.0.min.js') ?>
+    <?= $this->Html->script('tmrepository.js') ?>
 
     <?= $this->fetch('meta') ?>
     <?= $this->fetch('css') ?>
@@ -41,9 +43,33 @@ $cakeDescription = 'CakePHP: the rapid development php framework';
             </li>
         </ul>
         <div class="top-bar-section">
+            <ul class="left">
+                <li><a href="/tmrepository">Home</a></li>
+                <li><a href="/tmrepository/translationMemories">My translation memories</a></li>
+                <?php
+                if (isset($user) && $user['role_id'] == 1) {
+                ?>
+                <li><a href="/tmrepository/translationMemories/adminindex">All translation memories</a></li>
+                <li><a href="/tmrepository/users">Users</a></li>
+                <?php
+                }
+                ?>
+            </ul>
             <ul class="right">
-                <li><a target="_blank" href="http://book.cakephp.org/3.0/">Documentation</a></li>
-                <li><a target="_blank" href="http://api.cakephp.org/3.0/">API</a></li>
+              <li>
+                <?php
+                if (isset($user)) {
+                ?>
+                <li><a href="#">Logged in as: <?= $user['username'] ?></a></li>
+                <li><a href="/tmrepository/users/logout">Log out</a></li>
+                <?php
+                } else {
+                ?>
+                <li><a href="/tmrepository/users/login">Log in</a></li>
+                <li><a href="/tmrepository/users/add">Register</a></li>
+                <?php
+                }
+                ?>
             </ul>
         </div>
     </nav>

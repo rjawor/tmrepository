@@ -37,13 +37,29 @@ class AppController extends Controller
      *
      * @return void
      */
-    public function initialize()
-    {
-        parent::initialize();
+     public function initialize()
+     {
+         parent::initialize();
 
-        $this->loadComponent('RequestHandler');
-        $this->loadComponent('Flash');
-    }
+         $this->loadComponent('RequestHandler');
+         $this->loadComponent('Flash');
+
+         $this->loadComponent('Auth', [
+             'loginRedirect' => [
+                 'controller' => 'TranslationMemories',
+                 'action' => 'index'
+             ],
+             'logoutRedirect' => [
+                 'controller' => 'Pages',
+                 'action' => 'display',
+                 'home'
+             ],
+             'authError' => 'Access denied, please log in.',
+             'loginError' => 'Invalid username or password.'
+         ]);
+
+
+     }
 
     /**
      * Before render callback.
@@ -58,5 +74,11 @@ class AppController extends Controller
         ) {
             $this->set('_serialize', true);
         }
+    }
+
+    public function beforeFilter(Event $event)
+    {
+         $this->Auth->allow(['display']);
+         $this->set('user', $this->Auth->user());
     }
 }
