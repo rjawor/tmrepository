@@ -81,7 +81,7 @@ class UsersController extends AppController
             $user = $this->Users->patchEntity($user, $this->request->data);
             $user['role_id'] = 2;
             if ($this->Users->save($user)) {
-                $this->Flash->success(__('New user has been registered. You can now log in.'));
+                $this->Flash->success(__('You have been registered and you can now log in.'));
 
                 return $this->redirect('/');
             } else {
@@ -101,6 +101,10 @@ class UsersController extends AppController
      */
     public function edit($id = null)
     {
+        if ($this->Auth->user()['role_id'] != 1 && $this->Auth->user()['id'] != $id) {
+            $this->redirect('/');
+        }
+        
         $user = $this->Users->get($id, [
             'contain' => []
         ]);
@@ -109,7 +113,7 @@ class UsersController extends AppController
             if ($this->Users->save($user)) {
                 $this->Flash->success(__('The user has been saved.'));
 
-                return $this->redirect(['action' => 'index']);
+                return $this->redirect(['controller' => 'pages', 'action' => 'home']);
             } else {
                 $this->Flash->error(__('The user could not be saved. Please, try again.'));
             }
@@ -117,6 +121,31 @@ class UsersController extends AppController
         $this->set(compact('user'));
         $this->set('_serialize', ['user']);
     }
+
+    public function changepassword($id = null)
+    {    
+        $user = $this->Users->get($this->Auth->user()['id'], [
+            'contain' => []
+        ]);
+        if ($this->request->is(['patch', 'post', 'put'])) {
+        	if ($this->request->data['newpassword'] == $this->request->data['newpassword2']) {
+	            $user['password'] = $this->request->data['newpassword'];
+		        if ($this->Users->save($user)) {
+		            $this->Flash->success(__('The password has been changed.'));
+
+	                return $this->redirect(['controller' => 'pages', 'action' => 'home']);
+		        } else {
+		            $this->Flash->error(__('The user could not be saved. Please, try again.'));
+		        }
+		    } else {
+	            $this->Flash->error(__('Passwords do not match, try again.'));
+                return $this->redirect(['action' => 'changepassword']);		    
+		    }
+        }
+        $this->set(compact('user'));
+        $this->set('_serialize', ['user']);
+    }
+
 
     /**
      * Delete method
