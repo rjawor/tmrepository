@@ -19,7 +19,7 @@ class TranslationMemoriesController extends AppController
     public function index()
     {
         $this->paginate = [
-            'contain' => ['Users', 'Languages', 'TmTypes']
+            'contain' => ['Users', 'SourceLanguage', 'TargetLanguage', 'TmTypes']
         ];
         $translationMemories = $this->paginate($this->TranslationMemories);
 
@@ -36,12 +36,11 @@ class TranslationMemoriesController extends AppController
      */
     public function view($id = null)
     {
-        $translationMemory = $this->TranslationMemories->get($id, [
-            'contain' => ['Users', 'Languages', 'TmTypes']
-        ]);
+        $translationMemory = $this->TranslationMemories->get($id);
+        $units = $this->paginate($this->TranslationMemories->Units);
 
-        $this->set('translationMemory', $translationMemory);
-        $this->set('_serialize', ['translationMemory']);
+        $this->set(compact('translationMemory', 'units'));
+        $this->set('_serialize', ['translationMemory, units']);
     }
 
     /**

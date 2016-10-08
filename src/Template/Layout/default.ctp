@@ -61,7 +61,7 @@
                 if (isset($user)) {
                 ?>
                 <li><a href="#">Logged in as: <?= $user['username'] ?></a></li>
-                <li><a href="/tmrepository/users/edit/<?= $user['id'] ?>">Edit profile</a></li>
+                <li><a href="/tmrepository/users/edit/<?= $user['id'] ?>">My profile</a></li>
                 <li><a href="/tmrepository/users/logout">Log out</a></li>
                 <?php
                 } else {

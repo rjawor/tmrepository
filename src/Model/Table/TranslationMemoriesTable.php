@@ -43,11 +43,13 @@ class TranslationMemoriesTable extends Table
             'foreignKey' => 'user_id',
             'joinType' => 'INNER'
         ]);
-        $this->belongsTo('Languages', [
+        $this->belongsTo('SourceLanguage', [
+        	'className' => 'Languages',
             'foreignKey' => 'source_language_id',
             'joinType' => 'INNER'
         ]);
-        $this->belongsTo('Languages', [
+        $this->belongsTo('TargetLanguage', [
+        	'className' => 'Languages',
             'foreignKey' => 'target_language_id',
             'joinType' => 'INNER'
         ]);
@@ -55,6 +57,7 @@ class TranslationMemoriesTable extends Table
             'foreignKey' => 'tm_type_id',
             'joinType' => 'INNER'
         ]);
+        $this->hasMany('Units');
     }
 
     /**
