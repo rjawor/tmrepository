@@ -34,7 +34,7 @@ class UnitsTable extends Table
 
         $this->table('units');
         $this->displayField('id');
-        $this->primaryKey(['id', 'translation_memory_id']);
+        $this->primaryKey(['id']);
 
         $this->belongsTo('TranslationMemories', [
             'foreignKey' => 'translation_memory_id',

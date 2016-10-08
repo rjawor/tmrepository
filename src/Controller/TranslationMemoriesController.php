@@ -2,6 +2,7 @@
 namespace App\Controller;
 
 use App\Controller\AppController;
+use Cake\ORM\TableRegistry;
 
 /**
  * TranslationMemories Controller
@@ -22,8 +23,16 @@ class TranslationMemoriesController extends AppController
             'contain' => ['Users', 'SourceLanguage', 'TargetLanguage', 'TmTypes']
         ];
         $translationMemories = $this->paginate($this->TranslationMemories);
-
+        
+        $unitsTable = TableRegistry::get('Units');
+        $query = $unitsTable->find();
+        $countsRaw = $query->select(['translation_memory_id', 'unit_count'=>$query->func()->count('id')])->group('translation_memory_id');
+        $unitCounts = array();
+        foreach ($countsRaw as $count) {
+			$unitCounts[$count->translation_memory_id] = $count->unit_count;
+        }
         $this->set(compact('translationMemories'));
+        $this->set(compact('unitCounts'));
         $this->set('_serialize', ['translationMemories']);
     }
 
@@ -37,7 +46,8 @@ class TranslationMemoriesController extends AppController
     public function view($id = null)
     {
         $translationMemory = $this->TranslationMemories->get($id);
-        $units = $this->paginate($this->TranslationMemories->Units);
+        $unitsTable = TableRegistry::get('Units');
+        $units = $this->paginate($unitsTable->find('all')->where(['Units.translation_memory_id' => $id]));
 
         $this->set(compact('translationMemory', 'units'));
         $this->set('_serialize', ['translationMemory, units']);
