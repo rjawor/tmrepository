@@ -57,7 +57,9 @@ class TranslationMemoriesTable extends Table
             'foreignKey' => 'tm_type_id',
             'joinType' => 'INNER'
         ]);
-        $this->hasMany('Units');
+        $this->hasMany('Units', [
+        	'dependent' => true
+        ]);
     }
 
     /**
@@ -91,8 +93,8 @@ class TranslationMemoriesTable extends Table
     public function buildRules(RulesChecker $rules)
     {
         $rules->add($rules->existsIn(['user_id'], 'Users'));
-        $rules->add($rules->existsIn(['source_language_id'], 'Languages'));
-        $rules->add($rules->existsIn(['target_language_id'], 'Languages'));
+        $rules->add($rules->existsIn(['source_language_id'], 'SourceLanguage'));
+        $rules->add($rules->existsIn(['target_language_id'], 'TargetLanguage'));
         $rules->add($rules->existsIn(['tm_type_id'], 'TmTypes'));
 
         return $rules;

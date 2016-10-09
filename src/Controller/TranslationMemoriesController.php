@@ -12,6 +12,13 @@ use Cake\ORM\TableRegistry;
 class TranslationMemoriesController extends AppController
 {
 
+	private function _restrictAccess($translationMemory) {
+	    if ($this->Auth->user()['role_id'] != 1 && $this->Auth->user()['id'] != $translationMemory->user_id) {
+            $this->redirect('/');
+        }
+
+	}
+
     /**
      * Index method
      *
@@ -22,7 +29,7 @@ class TranslationMemoriesController extends AppController
         $this->paginate = [
             'contain' => ['Users', 'SourceLanguage', 'TargetLanguage', 'TmTypes']
         ];
-        $translationMemories = $this->paginate($this->TranslationMemories);
+        $translationMemories = $this->paginate($this->TranslationMemories->find('all')->where(['TranslationMemories.user_id' => $this->Auth->user()['id']]));
         
         $unitsTable = TableRegistry::get('Units');
         $query = $unitsTable->find();
@@ -46,6 +53,7 @@ class TranslationMemoriesController extends AppController
     public function view($id = null)
     {
         $translationMemory = $this->TranslationMemories->get($id);
+        $this->_restrictAccess($translationMemory);
         $unitsTable = TableRegistry::get('Units');
         $units = $this->paginate($unitsTable->find('all')->where(['Units.translation_memory_id' => $id]));
 
@@ -71,10 +79,9 @@ class TranslationMemoriesController extends AppController
                 $this->Flash->error(__('The translation memory could not be saved. Please, try again.'));
             }
         }
-        $users = $this->TranslationMemories->Users->find('list', ['limit' => 200]);
-        $languages = $this->TranslationMemories->Languages->find('list', ['limit' => 200]);
+        $languages = $this->TranslationMemories->SourceLanguage->find('list', ['limit' => 200]);
         $tmTypes = $this->TranslationMemories->TmTypes->find('list', ['limit' => 200]);
-        $this->set(compact('translationMemory', 'users', 'languages', 'tmTypes'));
+        $this->set(compact('translationMemory', 'languages', 'tmTypes'));
         $this->set('_serialize', ['translationMemory']);
     }
 
@@ -88,8 +95,9 @@ class TranslationMemoriesController extends AppController
     public function edit($id = null)
     {
         $translationMemory = $this->TranslationMemories->get($id, [
-            'contain' => []
+            'contain' => ['SourceLanguage', 'TargetLanguage', 'TmTypes']
         ]);
+        $this->_restrictAccess($translationMemory);
         if ($this->request->is(['patch', 'post', 'put'])) {
             $translationMemory = $this->TranslationMemories->patchEntity($translationMemory, $this->request->data);
             if ($this->TranslationMemories->save($translationMemory)) {
@@ -100,10 +108,9 @@ class TranslationMemoriesController extends AppController
                 $this->Flash->error(__('The translation memory could not be saved. Please, try again.'));
             }
         }
-        $users = $this->TranslationMemories->Users->find('list', ['limit' => 200]);
-        $languages = $this->TranslationMemories->Languages->find('list', ['limit' => 200]);
+        $languages = $this->TranslationMemories->SourceLanguage->find('list', ['limit' => 200]);
         $tmTypes = $this->TranslationMemories->TmTypes->find('list', ['limit' => 200]);
-        $this->set(compact('translationMemory', 'users', 'languages', 'tmTypes'));
+        $this->set(compact('translationMemory', 'languages', 'tmTypes'));
         $this->set('_serialize', ['translationMemory']);
     }
 
@@ -118,6 +125,7 @@ class TranslationMemoriesController extends AppController
     {
         $this->request->allowMethod(['post', 'delete']);
         $translationMemory = $this->TranslationMemories->get($id);
+        $this->_restrictAccess($translationMemory);
         if ($this->TranslationMemories->delete($translationMemory)) {
             $this->Flash->success(__('The translation memory has been deleted.'));
         } else {

@@ -2,8 +2,8 @@
     <ul class="side-nav">
         <li class="heading"><?= __('Actions') ?></li>
         <li><?= $this->Html->link(__('Edit translation memory info'), ['action' => 'edit', $translationMemory->id]) ?> </li>
-        <li><?= $this->Form->postLink(__('Delete translation memory'), ['action' => 'delete', $translationMemory->id], ['confirm' => __('Are you sure you want to delete # {0}?', $translationMemory->id)]) ?> </li>
-        <li><?= $this->Html->link(__('Upload translation memory'), ['action' => 'add']) ?> </li>
+        <li><?= $this->Form->postLink(__('Delete translation memory'), ['action' => 'delete', $translationMemory->id], ['confirm' => 'Are you sure you want to delete this translation memory?']) ?> </li>
+        <li><?= $this->Html->link(__('Upload a new translation memory'), ['action' => 'add']) ?> </li>
         <li><?= $this->Html->link(__('Back to my translation memories'), ['action' => 'index']) ?> </li>
     </ul>
 </nav>

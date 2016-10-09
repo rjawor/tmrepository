@@ -45,11 +45,11 @@
         <div class="top-bar-section">
             <ul class="left">
                 <li><a href="/tmrepository">Home</a></li>
-                <li><a href="/tmrepository/translationMemories">My translation memories</a></li>
+                <li><a href="/tmrepository/translation-memories">My translation memories</a></li>
                 <?php
                 if (isset($user) && $user['role_id'] == 1) {
                 ?>
-                <li><a href="/tmrepository/translationMemories/adminindex">All translation memories</a></li>
+                <li><a href="/tmrepository/translation-memories/adminindex">All translation memories</a></li>
                 <li><a href="/tmrepository/users">Users</a></li>
                 <?php
                 }
