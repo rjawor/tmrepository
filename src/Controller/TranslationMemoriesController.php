@@ -61,6 +61,19 @@ class TranslationMemoriesController extends AppController
         $this->set('_serialize', ['translationMemory, units']);
     }
 
+	private function lineCount($file_name) {
+		$linecount = 0;
+		$handle = fopen($file_name, "r");
+		while(!feof($handle)){
+			$line = fgets($handle);
+			$linecount++;
+		}
+
+		fclose($handle);
+		
+		return $linecount;
+	}
+	
     /**
      * Add method
      *
@@ -71,12 +84,52 @@ class TranslationMemoriesController extends AppController
         $translationMemory = $this->TranslationMemories->newEntity();
         if ($this->request->is('post')) {
             $translationMemory = $this->TranslationMemories->patchEntity($translationMemory, $this->request->data);
-            if ($this->TranslationMemories->save($translationMemory)) {
-                $this->Flash->success(__('The translation memory has been saved.'));
+            $translationMemory->user_id = $this->Auth->user()['id'];
 
-                return $this->redirect(['action' => 'index']);
+            if ($this->TranslationMemories->save($translationMemory)) {
+								
+				if ( ($_FILES['source_file']['size'] > 0) && ($_FILES['target_file']['size'] > 0)) {
+					$src_count = $this->lineCount($_FILES['source_file']['tmp_name']);
+					$trg_count = $this->lineCount($_FILES['target_file']['tmp_name']);
+				
+					if ($src_count == $trg_count) {				
+
+						$src = fopen($_FILES['source_file']['tmp_name'], "r");
+						$trg = fopen($_FILES['target_file']['tmp_name'], "r");
+
+						$units = array();
+						for ($i = 0;$i<$src_count;$i++) {
+							$src_line = trim(fgets($src));
+							$trg_line = trim(fgets($trg));
+							$unit = $this->TranslationMemories->Units->newEntity();
+							$unit->source_segment = $src_line;
+							$unit->target_segment = $trg_line;
+							array_push($units, $unit);
+						}
+					
+					
+					
+						fclose($src);
+						fclose($trg);
+	
+				    	unlink($_FILES['source_file']['tmp_name']);
+				    	unlink($_FILES['target_file']['tmp_name']);
+				    	
+				    	$translationMemory->units = $units;
+				    	$this->TranslationMemories->save($translationMemory);
+				        $this->Flash->success(__('The translation memory has been uploaded.'));
+
+				        return $this->redirect(['action' => 'view', $translationMemory->id]);
+		            } else {
+				    	unlink($_FILES['source_file']['tmp_name']);
+				    	unlink($_FILES['target_file']['tmp_name']);
+			            $this->Flash->error(__('Files have different number of lines (source = '.$src_count.' lines, target = '.$trg_count.' lines.)'));                
+		            }
+				} else {
+	                $this->Flash->error(__('Missing source or target file. Please, try again.'));				
+				}                
             } else {
-                $this->Flash->error(__('The translation memory could not be saved. Please, try again.'));
+                $this->Flash->error(__('The translation memory could not be uploaded. Please, try again.'));
             }
         }
         $languages = $this->TranslationMemories->SourceLanguage->find('list', ['limit' => 200]);

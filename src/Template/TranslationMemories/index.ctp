@@ -23,7 +23,7 @@
                 <td><?= $this->Html->link($translationMemory->title, ['action' => 'view', $translationMemory->id]) ?></td>
                 <td><?= $translationMemory->description ?></td>
                 <td><?= $translationMemory->tm_type->name ?></td>
-                <td><?= $unitCounts[$translationMemory->id] ?></td>
+                <td><?= isset($unitCounts[$translationMemory->id])?$unitCounts[$translationMemory->id]:0 ?></td>
                 <td><?= $translationMemory->source_language->name ?>&nbsp;&rarr;&nbsp;<?= $translationMemory->target_language->name ?></td>
                 <td class="actions">
                     <?= $this->Html->link(__('Edit info'), ['action' => 'edit', $translationMemory->id]) ?>&nbsp;&nbsp;
