@@ -2,6 +2,7 @@
     <ul class="side-nav">
         <li class="heading"><?= __('Actions') ?></li>
         <li><?= $this->Html->link(__('Edit translation memory info'), ['action' => 'edit', $translationMemory->id]) ?> </li>
+        <li><?= $this->Html->link(__('Export translation memory'), ['action' => 'export', $translationMemory->id]) ?> </li>
         <li><?= $this->Form->postLink(__('Delete translation memory'), ['action' => 'delete', $translationMemory->id], ['confirm' => 'Are you sure you want to delete this translation memory?']) ?> </li>
         <li><?= $this->Html->link(__('Upload a new translation memory'), ['action' => 'add']) ?> </li>
         <li><?= $this->Html->link(__('Back to my translation memories'), ['action' => 'index']) ?> </li>
@@ -9,6 +10,10 @@
 </nav>
 <div class="translationMemories view large-9 medium-8 columns content">
     <h3><?= h($translationMemory->title) ?></h3>
+	<h5>Description:</h5>
+    <p>
+    <?= h($translationMemory->description) ?>
+    </p>
     <table>
 		<tr>
  	  		<th scope="col">Source segment</th>

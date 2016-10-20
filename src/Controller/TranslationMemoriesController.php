@@ -3,6 +3,7 @@ namespace App\Controller;
 
 use App\Controller\AppController;
 use Cake\ORM\TableRegistry;
+use App\Exporter\ExporterFactory;
 
 /**
  * TranslationMemories Controller
@@ -61,7 +62,32 @@ class TranslationMemoriesController extends AppController
         $this->set('_serialize', ['translationMemory, units']);
     }
 
-	private function lineCount($file_name) {
+
+    public function export($id = null)
+    {
+        $translationMemory = $this->TranslationMemories->get($id, [
+            'contain' => ['SourceLanguage', 'TargetLanguage', 'TmTypes']
+        ]);
+        $this->_restrictAccess($translationMemory);
+
+        if ($this->request->is(['patch', 'post', 'put'])) {
+        	$exporter = ExporterFactory::createForType($this->request->data['export_type']);
+        	$exporter->init($translationMemory);
+        	$exporter->writeTm($translationMemory->id);
+        	$exporter->close();
+        	
+        	$this->response->file(
+				$exporter->getExportedFilePath(),
+				['download' => true]
+			);
+			
+			return $this->response;
+        }
+        $this->set(compact('translationMemory'));
+        $this->set('_serialize', ['translationMemory']);
+    }
+
+	private function _lineCount($file_name) {
 		$linecount = 0;
 		$handle = fopen($file_name, "r");
 		while(!feof($handle)){
@@ -89,8 +115,8 @@ class TranslationMemoriesController extends AppController
             if ($this->TranslationMemories->save($translationMemory)) {
 								
 				if ( ($_FILES['source_file']['size'] > 0) && ($_FILES['target_file']['size'] > 0)) {
-					$src_count = $this->lineCount($_FILES['source_file']['tmp_name']);
-					$trg_count = $this->lineCount($_FILES['target_file']['tmp_name']);
+					$src_count = $this->_lineCount($_FILES['source_file']['tmp_name']);
+					$trg_count = $this->_lineCount($_FILES['target_file']['tmp_name']);
 				
 					if ($src_count == $trg_count) {				
 
