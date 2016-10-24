@@ -10,7 +10,6 @@
 </nav>
 <div class="translationMemories view large-9 medium-8 columns content">
     <h3><?= h($translationMemory->title) ?></h3>
-	<h5>Description:</h5>
     <p>
     <?= h($translationMemory->description) ?>
     </p>

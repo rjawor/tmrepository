@@ -1,43 +1,44 @@
 <?php
+
 namespace App\Controller;
 
-use App\Controller\AppController;
+use Cake\Core\Exception\Exception;
 use Cake\ORM\TableRegistry;
 use App\Exporter\ExporterFactory;
+use App\Importer\ImporterFactory;
 
 /**
- * TranslationMemories Controller
+ * TranslationMemories Controller.
  *
  * @property \App\Model\Table\TranslationMemoriesTable $TranslationMemories
  */
 class TranslationMemoriesController extends AppController
 {
-
-	private function _restrictAccess($translationMemory) {
-	    if ($this->Auth->user()['role_id'] != 1 && $this->Auth->user()['id'] != $translationMemory->user_id) {
+    private function _restrictAccess($translationMemory)
+    {
+        if ($this->Auth->user()['role_id'] != 1 && $this->Auth->user()['id'] != $translationMemory->user_id) {
             $this->redirect('/');
         }
-
-	}
+    }
 
     /**
-     * Index method
+     * Index method.
      *
      * @return \Cake\Network\Response|null
      */
     public function index()
     {
         $this->paginate = [
-            'contain' => ['Users', 'SourceLanguage', 'TargetLanguage', 'TmTypes']
+            'contain' => ['Users', 'SourceLanguage', 'TargetLanguage', 'TmTypes'],
         ];
         $translationMemories = $this->paginate($this->TranslationMemories->find('all')->where(['TranslationMemories.user_id' => $this->Auth->user()['id']]));
-        
+
         $unitsTable = TableRegistry::get('Units');
         $query = $unitsTable->find();
-        $countsRaw = $query->select(['translation_memory_id', 'unit_count'=>$query->func()->count('id')])->group('translation_memory_id');
+        $countsRaw = $query->select(['translation_memory_id', 'unit_count' => $query->func()->count('id')])->group('translation_memory_id');
         $unitCounts = array();
         foreach ($countsRaw as $count) {
-			$unitCounts[$count->translation_memory_id] = $count->unit_count;
+            $unitCounts[$count->translation_memory_id] = $count->unit_count;
         }
         $this->set(compact('translationMemories'));
         $this->set(compact('unitCounts'));
@@ -45,11 +46,13 @@ class TranslationMemoriesController extends AppController
     }
 
     /**
-     * View method
+     * View method.
      *
-     * @param string|null $id Translation Memory id.
+     * @param string|null $id Translation Memory id
+     *
      * @return \Cake\Network\Response|null
-     * @throws \Cake\Datasource\Exception\RecordNotFoundException When record not found.
+     *
+     * @throws \Cake\Datasource\Exception\RecordNotFoundException When record not found
      */
     public function view($id = null)
     {
@@ -62,48 +65,48 @@ class TranslationMemoriesController extends AppController
         $this->set('_serialize', ['translationMemory, units']);
     }
 
-
     public function export($id = null)
     {
         $translationMemory = $this->TranslationMemories->get($id, [
-            'contain' => ['SourceLanguage', 'TargetLanguage', 'TmTypes']
+            'contain' => ['SourceLanguage', 'TargetLanguage', 'TmTypes'],
         ]);
         $this->_restrictAccess($translationMemory);
 
         if ($this->request->is(['patch', 'post', 'put'])) {
-        	$exporter = ExporterFactory::createForType($this->request->data['export_type']);
-        	$exporter->init($translationMemory);
-        	$exporter->writeTm($translationMemory->id);
-        	$exporter->close();
-        	
-        	$this->response->file(
-				$exporter->getExportedFilePath(),
-				['download' => true]
-			);
-			
-			return $this->response;
+            $exporter = ExporterFactory::createForFormat($this->request->data['export_format']);
+            $exporter->init($translationMemory);
+            $exporter->writeTm($translationMemory->id);
+            $exporter->close();
+
+            $this->response->file(
+                $exporter->getExportedFilePath(),
+                ['download' => true]
+            );
+
+            return $this->response;
         }
         $this->set(compact('translationMemory'));
         $this->set('_serialize', ['translationMemory']);
     }
 
-	private function _lineCount($file_name) {
-		$linecount = 0;
-		$handle = fopen($file_name, "r");
-		while(!feof($handle)){
-			$line = fgets($handle);
-			$linecount++;
-		}
+    private function _lineCount($file_name)
+    {
+        $linecount = 0;
+        $handle = fopen($file_name, 'r');
+        while (!feof($handle)) {
+            $line = fgets($handle);
+            ++$linecount;
+        }
 
-		fclose($handle);
-		
-		return $linecount;
-	}
-	
+        fclose($handle);
+
+        return $linecount;
+    }
+
     /**
-     * Add method
+     * Add method.
      *
-     * @return \Cake\Network\Response|void Redirects on successful add, renders view otherwise.
+     * @return \Cake\Network\Response|void Redirects on successful add, renders view otherwise
      */
     public function add()
     {
@@ -113,49 +116,21 @@ class TranslationMemoriesController extends AppController
             $translationMemory->user_id = $this->Auth->user()['id'];
 
             if ($this->TranslationMemories->save($translationMemory)) {
-								
-				if ( ($_FILES['source_file']['size'] > 0) && ($_FILES['target_file']['size'] > 0)) {
-					$src_count = $this->_lineCount($_FILES['source_file']['tmp_name']);
-					$trg_count = $this->_lineCount($_FILES['target_file']['tmp_name']);
-				
-					if ($src_count == $trg_count) {				
+				try {
+					$importer = ImporterFactory::createForFormat($this->request->data['import_format']);
+					$importer->importUnits($translationMemory, $_FILES['source_file']['tmp_name'], $_FILES['target_file']['tmp_name']);
+					$this->Flash->success(__('The translation memory has been uploaded.'));
+		            return $this->redirect(['action' => 'view', $translationMemory->id]);
+				} catch (Exception $e) {
+					$this->Flash->error('The following error occured: "'.$e->getMessage().'". Please, try again.');
+                    $this->TranslationMemories->delete($translationMemory);
+                    return $this->redirect(['action' => 'add']);
+				}
 
-						$src = fopen($_FILES['source_file']['tmp_name'], "r");
-						$trg = fopen($_FILES['target_file']['tmp_name'], "r");
-
-						$units = array();
-						for ($i = 0;$i<$src_count;$i++) {
-							$src_line = trim(fgets($src));
-							$trg_line = trim(fgets($trg));
-							$unit = $this->TranslationMemories->Units->newEntity();
-							$unit->source_segment = $src_line;
-							$unit->target_segment = $trg_line;
-							array_push($units, $unit);
-						}
-					
-					
-					
-						fclose($src);
-						fclose($trg);
-	
-				    	unlink($_FILES['source_file']['tmp_name']);
-				    	unlink($_FILES['target_file']['tmp_name']);
-				    	
-				    	$translationMemory->units = $units;
-				    	$this->TranslationMemories->save($translationMemory);
-				        $this->Flash->success(__('The translation memory has been uploaded.'));
-
-				        return $this->redirect(['action' => 'view', $translationMemory->id]);
-		            } else {
-				    	unlink($_FILES['source_file']['tmp_name']);
-				    	unlink($_FILES['target_file']['tmp_name']);
-			            $this->Flash->error(__('Files have different number of lines (source = '.$src_count.' lines, target = '.$trg_count.' lines.)'));                
-		            }
-				} else {
-	                $this->Flash->error(__('Missing source or target file. Please, try again.'));				
-				}                
             } else {
                 $this->Flash->error(__('The translation memory could not be uploaded. Please, try again.'));
+                $this->TranslationMemories->delete($translationMemory);
+                return $this->redirect(['action' => 'add']);
             }
         }
         $languages = $this->TranslationMemories->SourceLanguage->find('list', ['limit' => 200]);
@@ -165,16 +140,18 @@ class TranslationMemoriesController extends AppController
     }
 
     /**
-     * Edit method
+     * Edit method.
      *
-     * @param string|null $id Translation Memory id.
-     * @return \Cake\Network\Response|void Redirects on successful edit, renders view otherwise.
-     * @throws \Cake\Network\Exception\NotFoundException When record not found.
+     * @param string|null $id Translation Memory id
+     *
+     * @return \Cake\Network\Response|void Redirects on successful edit, renders view otherwise
+     *
+     * @throws \Cake\Network\Exception\NotFoundException When record not found
      */
     public function edit($id = null)
     {
         $translationMemory = $this->TranslationMemories->get($id, [
-            'contain' => ['SourceLanguage', 'TargetLanguage', 'TmTypes']
+            'contain' => ['SourceLanguage', 'TargetLanguage', 'TmTypes'],
         ]);
         $this->_restrictAccess($translationMemory);
         if ($this->request->is(['patch', 'post', 'put'])) {
@@ -194,11 +171,13 @@ class TranslationMemoriesController extends AppController
     }
 
     /**
-     * Delete method
+     * Delete method.
      *
-     * @param string|null $id Translation Memory id.
-     * @return \Cake\Network\Response|null Redirects to index.
-     * @throws \Cake\Datasource\Exception\RecordNotFoundException When record not found.
+     * @param string|null $id Translation Memory id
+     *
+     * @return \Cake\Network\Response|null Redirects to index
+     *
+     * @throws \Cake\Datasource\Exception\RecordNotFoundException When record not found
      */
     public function delete($id = null)
     {

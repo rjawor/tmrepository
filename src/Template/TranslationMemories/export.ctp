@@ -15,7 +15,7 @@
     </p>
     <?= $this->Form->create($translationMemory) ?>
     <?= $this->Form->radio(
-							'export_type', 
+							'export_format', 
 							[
 								['value' => 'txt', 'text' => 'TXT - a pair of zipped .txt files. One sentence - one line.'],
 								['value' => 'tmx', 'text' => 'TMX - a Translation Memory eXchange file.'],
