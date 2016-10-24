@@ -122,13 +122,13 @@ class TranslationMemoriesController extends AppController
 					$this->Flash->success(__('The translation memory has been uploaded.'));
 		            return $this->redirect(['action' => 'view', $translationMemory->id]);
 				} catch (Exception $e) {
-					$this->Flash->error('The following error occured: "'.$e->getMessage().'". Please, try again.');
+					$this->Flash->error('The following error occured: "'.$e->getMessage().'". Please try again.');
                     $this->TranslationMemories->delete($translationMemory);
                     return $this->redirect(['action' => 'add']);
 				}
 
             } else {
-                $this->Flash->error(__('The translation memory could not be uploaded. Please, try again.'));
+                $this->Flash->error(__('The translation memory could not be uploaded. Please try again.'));
                 $this->TranslationMemories->delete($translationMemory);
                 return $this->redirect(['action' => 'add']);
             }

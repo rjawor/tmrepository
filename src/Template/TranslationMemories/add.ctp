@@ -17,8 +17,8 @@
         ?>
         <label for="upload-format">Translation memory format</label>
 		<input id="upload-format" type="radio" name="import_format" value="txt"  onclick="showTargetFile()" checked>TXT - two .txt files, one sentence per line, equal number of lines in the files<br>
-		<input type="radio" name="upload_format" value="doc" onclick="showTargetFile()">DOC/DOCX - two word documents<br>
-		<input type="radio" name="upload_format" value="tmx" onclick="hideTargetFile()">TMX - a .tmx file<br><br>
+		<input type="radio" name="import_format" value="doc" onclick="showTargetFile()">DOC/DOCX - two word documents<br>
+		<input type="radio" name="import_format" value="tmx" onclick="hideTargetFile()">TMX - a .tmx file<br><br>
 
         <?php
             echo $this->Form->input('source_file', ['label' => 'Source file', 'type'=>'file']);
