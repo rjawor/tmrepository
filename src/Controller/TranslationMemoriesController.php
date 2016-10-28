@@ -114,11 +114,14 @@ class TranslationMemoriesController extends AppController
         if ($this->request->is('post')) {
             $translationMemory = $this->TranslationMemories->patchEntity($translationMemory, $this->request->data);
             $translationMemory->user_id = $this->Auth->user()['id'];
-
             if ($this->TranslationMemories->save($translationMemory)) {
 				try {
 					$importer = ImporterFactory::createForFormat($this->request->data['import_format']);
-					$importer->importUnits($translationMemory, $_FILES['source_file']['tmp_name'], $_FILES['target_file']['tmp_name']);
+					$importer->importUnits($translationMemory,
+                                           $_FILES['source_file']['tmp_name'],
+                                           $this->request->data['source_language_id'],
+                                           $_FILES['target_file']['tmp_name'],
+                                           $this->request->data['target_language_id']);
 					$this->Flash->success(__('The translation memory has been uploaded.'));
 		            return $this->redirect(['action' => 'view', $translationMemory->id]);
 				} catch (Exception $e) {

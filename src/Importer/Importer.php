@@ -5,7 +5,7 @@ use Cake\ORM\TableRegistry;
 
 interface Importer {
 
-	public function importUnits($translationMemory, $sourceFilePath, $targetFilePath);
+	public function importUnits($translationMemory, $sourceFilePath, $sourceLanguageId, $targetFilePath, $targetLanguageId);
 
 }
 ?>

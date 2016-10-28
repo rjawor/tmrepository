@@ -16,10 +16,28 @@ class DocImporter implements Importer
         {
         	throw new Exception("Error extracting text. Command: ".$command);
         }
-        
+
         system("sed -i '/^$/d' ".$folder.'/'.$fileName.'_raw_text.txt');
         system("sed -i 's/\t/ /g' ".$folder.'/'.$fileName.'_raw_text.txt');
 
+    }
+
+    private function _srxSplit($folder, $sourceLanguageCode, $targetLanguageCode)
+    {
+        system("cat ".$folder.'/src_raw_text.txt | eserix -r /usr/share/eserix/srx/rules.srx -l '.$sourceLanguageCode. '> '.$folder.'/src_splitted_text.txt');
+        system("cat ".$folder.'/trg_raw_text.txt | eserix -r /usr/share/eserix/srx/rules.srx -l '.$targetLanguageCode. '> '.$folder.'/trg_splitted_text.txt');
+    }
+
+    private function _hunalign($folder)
+    {
+        $tempDictionary = "/tmp/hunalign.dic";
+        if (file_exists($tempDictionary))
+        {
+            unlink($tempDictionary);
+        }
+        touch($tempDictionary);
+
+        system("hunalign -text -utf -realign ".$tempDictionary." ".$folder."/src_splitted_text.txt ".$folder."/trg_splitted_text.txt > ".$folder."/aligned.txt");
     }
 
     private function _getMimeType($filePath)
@@ -44,7 +62,7 @@ class DocImporter implements Importer
         }
     }
 
-    public function importUnits($translationMemory, $sourceFilePath, $targetFilePath)
+    public function importUnits($translationMemory, $sourceFilePath, $sourceLanguageId, $targetFilePath, $targetLanguageId)
     {
         if (!file_exists($sourceFilePath) || filesize($sourceFilePath) == 0)
 		{
@@ -74,7 +92,28 @@ class DocImporter implements Importer
         $this->_extractText($folder, 'src', $sourceFileExtension);
         $this->_extractText($folder, 'trg', $targetFileExtension);
 
+        $languagesTable = TableRegistry::get('Languages');
+        $languagesArray = $languagesTable->find('list', ['keyField' => 'id', 'valueField' => 'code'])->toArray();
+        $this->_srxSplit($folder, $languagesArray[$sourceLanguageId], $languagesArray[$targetLanguageId]);
+
+        $this->_hunalign($folder);
+
+
+        $aligned = fopen($folder.'/aligned.txt', 'r');
         $units = array();
+        $unitsTable = TableRegistry::get('Units');
+        while (($line = fgets($aligned)) !== false)
+        {
+            $parts = preg_split('/\t/', $line);
+            $sourceSentence = preg_replace('/\s*~~~\s*/', ' ', trim($parts[0]));
+            $targetSentence = preg_replace('/\s*~~~\s*/', ' ', trim($parts[1]));
+            $unit = $unitsTable->newEntity();
+            $unit->source_segment = $sourceSentence;
+            $unit->target_segment = $targetSentence;
+            array_push($units, $unit);
+        }
+
+        fclose($aligned);
 
         $translationMemory->units = $units;
 		$tmTable = TableRegistry::get('TranslationMemories');

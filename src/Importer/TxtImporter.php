@@ -21,7 +21,7 @@ class TxtImporter implements Importer
         return $linecount;
     }
 
-    public function importUnits($translationMemory, $sourceFilePath, $targetFilePath)
+    public function importUnits($translationMemory, $sourceFilePath, $sourceLanguageId, $targetFilePath, $targetLanguageId)
     {
         if (!file_exists($sourceFilePath) || filesize($sourceFilePath) == 0)
 		{
@@ -45,10 +45,10 @@ class TxtImporter implements Importer
         $trg = fopen($targetFilePath, 'r');
 
         $units = array();
+        $unitsTable = TableRegistry::get('Units');
         for ($i = 0; $i < $src_count; ++$i) {
             $src_line = trim(fgets($src));
             $trg_line = trim(fgets($trg));
-			$unitsTable = TableRegistry::get('Units');
             $unit = $unitsTable->newEntity();
             $unit->source_segment = $src_line;
             $unit->target_segment = $trg_line;
