@@ -10,13 +10,17 @@ class DocImporter implements Importer
     private function _extractText($folder, $fileName, $extension)
     {
 
-		$command = "antiword -m UTF-8.txt -w 0 ".$folder.'/'.$fileName.$extension." > ".$folder.'/'.$fileName.'_raw_text.txt';
-        system($command, $retval);
-        if ($retval != 0)
+        if ($extension == ".doc")
         {
-        	throw new Exception("Error extracting text. Command: ".$command);
+    		$command = "antiword -m UTF-8.txt -w 0 ".$folder.'/'.$fileName.$extension." > ".$folder.'/'.$fileName.'_raw_text.txt';
+            system($command, $retval);
+            if ($retval != 0)
+            {
+            	throw new Exception("Error extracting text. Command: ".$command);
+            }
+        } else if ($extension == ".docx"){
+            system("extract-text-docx ".$folder.'/'.$fileName.$extension." > ".$folder.'/'.$fileName.'_raw_text.txt');
         }
-
         system("sed -i '/^$/d' ".$folder.'/'.$fileName.'_raw_text.txt');
         system("sed -i 's/\t/ /g' ".$folder.'/'.$fileName.'_raw_text.txt');
 
