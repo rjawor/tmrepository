@@ -1,7 +1,12 @@
 <nav class="large-3 medium-4 columns" id="actions-sidebar">
     <ul class="side-nav">
         <li class="heading"><?= __('Actions') ?></li>
-        <li><?= $this->Html->link(__('Upload a new translation memory'), ['action' => 'add']) ?></li>
+        <li>
+            <a href="/tmrepository/translation-memories/add" title="Upload a new translation memory">
+                <img src="/tmrepository/img/add.png" />
+                &nbsp;New
+            </a>
+        </li>
     </ul>
 </nav>
 <div class="translationMemories index large-9 medium-8 columns content">
@@ -12,7 +17,7 @@
                 <th scope="col" width="50px">Id</th>
                 <th scope="col"><?= $this->Paginator->sort('title') ?></th>
                 <th scope="col"><?= $this->Paginator->sort('tm_type_id') ?></th>
-                <th scope="col" width="70px">Units</th>                
+                <th scope="col" width="70px">Units</th>
                 <th scope="col">Direction</th>
                 <th scope="col" class="actions"><?= __('Actions') ?></th>
             </tr>
