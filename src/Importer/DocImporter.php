@@ -111,10 +111,14 @@ class DocImporter implements Importer
             $parts = preg_split('/\t/', $line);
             $sourceSentence = preg_replace('/\s*~~~\s*/', ' ', trim($parts[0]));
             $targetSentence = preg_replace('/\s*~~~\s*/', ' ', trim($parts[1]));
-            $unit = $unitsTable->newEntity();
-            $unit->source_segment = $sourceSentence;
-            $unit->target_segment = $targetSentence;
-            array_push($units, $unit);
+
+            if (strlen($sourceSentence) > 0 && strlen($targetSentence))
+            {
+                $unit = $unitsTable->newEntity();
+                $unit->source_segment = $sourceSentence;
+                $unit->target_segment = $targetSentence;
+                array_push($units, $unit);
+            }
         }
 
         fclose($aligned);
