@@ -31,7 +31,7 @@ class TranslationMemoriesController extends AppController
         $this->paginate = [
             'contain' => ['Users', 'SourceLanguage', 'TargetLanguage', 'TmTypes'],
         ];
-        $translationMemories = $this->paginate($this->TranslationMemories->find('all')->where(['TranslationMemories.user_id' => $this->Auth->user()['id']]));
+        $translationMemories = $this->paginate($this->TranslationMemories->find('all')->where(['TranslationMemories.user_id' => $this->Auth->user()['id']])->order(['TranslationMemories.id' => 'ASC']));
 
         $unitsTable = TableRegistry::get('Units');
         $query = $unitsTable->find();
