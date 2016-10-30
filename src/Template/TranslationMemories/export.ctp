@@ -38,7 +38,7 @@
     </ul>
 </nav>
 <div class="translationMemories view large-9 medium-8 columns content">
-    <h3>Export units</h3>
+    <h3>Export translation memory</h3>
     <p>
     Chosen translation memory: <b><?= $translationMemory->title ?> (id = <?= $translationMemory->id ?>)</b>
     </p>

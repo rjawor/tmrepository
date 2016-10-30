@@ -45,6 +45,30 @@ class TranslationMemoriesController extends AppController
         $this->set('_serialize', ['translationMemories']);
     }
 
+    public function adminindex()
+    {
+        if ($this->Auth->user()['role_id'] != 1)
+        {
+            $this->redirect('/');
+        }
+        $this->paginate = [
+            'contain' => ['Users', 'SourceLanguage', 'TargetLanguage', 'TmTypes'],
+        ];
+        $translationMemories = $this->paginate($this->TranslationMemories->find('all')->order(['TranslationMemories.id' => 'ASC']));
+
+        $unitsTable = TableRegistry::get('Units');
+        $query = $unitsTable->find();
+        $countsRaw = $query->select(['translation_memory_id', 'unit_count' => $query->func()->count('id')])->group('translation_memory_id');
+        $unitCounts = array();
+        foreach ($countsRaw as $count) {
+            $unitCounts[$count->translation_memory_id] = $count->unit_count;
+        }
+        $this->set(compact('translationMemories'));
+        $this->set(compact('unitCounts'));
+        $this->set('_serialize', ['translationMemories']);
+    }
+
+
     /**
      * View method.
      *
@@ -65,6 +89,59 @@ class TranslationMemoriesController extends AppController
         $this->set('_serialize', ['translationMemory, units']);
     }
 
+    public function massexport()
+    {
+        if ($this->Auth->user()['role_id'] != 1)
+        {
+            $this->redirect('/');
+        }
+
+        $languagesList = $this->TranslationMemories->SourceLanguage->find('list', ['keyField' => 'id', 'valueField' => 'code'])->toArray();
+
+        if ($this->request->is(['patch', 'post', 'put'])) {
+            $exporter = ExporterFactory::createForFormat($this->request->data['export_format']);
+
+            $exporter->init('exported_tm', $languagesList[$this->request->data['source_language_id']], $languagesList[$this->request->data['target_language_id']]);
+
+            $tms = $this->TranslationMemories->find('all')->where(
+                function ($exp, $q) {
+                    return $exp->in('tm_type_id', $this->request->data['tm_types']);
+                }
+            )->where([
+                'source_language_id' => $this->request->data['source_language_id'],
+                'target_language_id' => $this->request->data['target_language_id']
+            ]);
+
+            if ($this->request->data['reversed'])
+            {
+                $tms = $tms->orWhere([
+                    'source_language_id' => $this->request->data['target_language_id'],
+                    'target_language_id' => $this->request->data['source_language_id']
+                ]);
+            }
+
+            foreach($tms as $tm)
+            {
+                $exporter->writeTm($tm->id, $tm->source_language_id != $this->request->data['source_language_id']);
+            }
+
+            $exporter->close();
+
+            $this->response->file(
+                $exporter->getExportedFilePath(),
+                ['download' => true]
+            );
+
+            return $this->response;
+        }
+        $languages = $this->TranslationMemories->SourceLanguage->find('list');
+        $tmTypes = $this->TranslationMemories->TmTypes->find('list', ['limit' => 200]);
+        $this->set(compact('languages', 'tmTypes'));
+        $this->set('_serialize', ['languages', 'tmTypes']);
+
+    }
+
+
     public function export($id = null)
     {
         $translationMemory = $this->TranslationMemories->get($id, [
@@ -74,7 +151,7 @@ class TranslationMemoriesController extends AppController
 
         if ($this->request->is(['patch', 'post', 'put'])) {
             $exporter = ExporterFactory::createForFormat($this->request->data['export_format']);
-            $exporter->init($translationMemory);
+            $exporter->init('tm_'.$translationMemory->id, $translationMemory->source_language->code, $translationMemory->target_language->code);
             $exporter->writeTm($translationMemory->id);
             $exporter->close();
 

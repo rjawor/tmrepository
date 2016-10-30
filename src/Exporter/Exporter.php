@@ -6,14 +6,15 @@ use Cake\ORM\TableRegistry;
 class Exporter {
 
 	protected $_exportedFilePath;
-	
+
 	public function getExportedFilePath() {
 		return $this->_exportedFilePath;
 	}
 
-	public function init($translationMemory) {
+	public function init($fileName, $sourceLanguageCode, $targetLanguageCode)
+ 	{
 	}
-	
+
 	public function writeTm($tmId, $reversed = false) {
 		$unitsTable = TableRegistry::get('Units');
 		$units = $unitsTable->find('all')->where(['Units.translation_memory_id' => $tmId]);
@@ -22,7 +23,7 @@ class Exporter {
 		}
 
 	}
-	
+
 	protected function _writeUnit($unit, $reversed) {
 	}
 

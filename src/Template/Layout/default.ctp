@@ -50,7 +50,6 @@
                 if (isset($user) && $user['role_id'] == 1) {
                 ?>
                 <li><a href="/tmrepository/translation-memories/adminindex">All translation memories</a></li>
-                <li><a href="/tmrepository/users">Users</a></li>
                 <?php
                 }
                 ?>

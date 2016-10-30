@@ -8,14 +8,15 @@ class TmxExporter extends Exporter {
 
 	private $_trgLang;
 
-	public function init($translationMemory) {
-		$this->_exportedFilePath = '/tmp/tm_'.$translationMemory->id.'.tmx';
+	public function init($fileName, $sourceLanguageCode, $targetLanguageCode)
+	{
+		$this->_exportedFilePath = '/tmp/'.$fileName.'.tmx';
 		if (file_exists($this->_exportedFilePath)) {
 			unlink($this->_exportedFilePath);
 		}
 
-		$this->_srcLang = $translationMemory->source_language->code;
-		$this->_trgLang = $translationMemory->target_language->code;
+		$this->_srcLang = $sourceLanguageCode;
+		$this->_trgLang = $targetLanguageCode;
 
 		$this->_tmxFile = fopen($this->_exportedFilePath, 'a');
 		fwrite($this->_tmxFile, "<tmx version=\"1.4\">\n");
@@ -31,10 +32,24 @@ class TmxExporter extends Exporter {
 	protected function _writeUnit($unit, $reversed) {
 		fwrite($this->_tmxFile, "\t\t<tu>\n");
 		fwrite($this->_tmxFile, "\t\t\t<tuv xml:lang=\"".$this->_srcLang."\">\n");
-		fwrite($this->_tmxFile, "\t\t\t\t<seg>".$unit->source_segment."</seg>\n");
+		if ($reversed)
+		{
+			fwrite($this->_tmxFile, "\t\t\t\t<seg>".$unit->target_segment."</seg>\n");
+		}
+		else
+		{
+			fwrite($this->_tmxFile, "\t\t\t\t<seg>".$unit->source_segment."</seg>\n");
+		}
 		fwrite($this->_tmxFile, "\t\t\t</tuv>\n");
 		fwrite($this->_tmxFile, "\t\t\t<tuv xml:lang=\"".$this->_trgLang."\">\n");
-		fwrite($this->_tmxFile, "\t\t\t\t<seg>".$unit->target_segment."</seg>\n");
+		if ($reversed)
+		{
+			fwrite($this->_tmxFile, "\t\t\t\t<seg>".$unit->source_segment."</seg>\n");
+		}
+		else
+		{
+			fwrite($this->_tmxFile, "\t\t\t\t<seg>".$unit->target_segment."</seg>\n");
+		}
 		fwrite($this->_tmxFile, "\t\t\t</tuv>\n");
 		fwrite($this->_tmxFile, "\t\t</tu>\n");
 	}
