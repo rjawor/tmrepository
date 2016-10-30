@@ -1,7 +1,12 @@
 <nav class="large-3 medium-4 columns" id="actions-sidebar">
     <ul class="side-nav">
         <li class="heading"><?= __('Actions') ?></li>
-        <li><?= $this->Html->link(__('List my translation memories'), ['action' => 'index']) ?></li>
+        <li>
+            <a href="/tmrepository/translation-memories/index" title="Back to my translation memories">
+                <img src="/tmrepository/img/list.png" />
+                &nbsp;List
+            </a>
+        </li>
     </ul>
 </nav>
 <div class="translationMemories form large-9 medium-8 columns content">
