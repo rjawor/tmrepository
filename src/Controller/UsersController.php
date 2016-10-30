@@ -39,35 +39,6 @@ class UsersController extends AppController
         return $this->redirect($this->Auth->logout());
     }
 
-    /**
-     * Index method
-     *
-     * @return \Cake\Network\Response|null
-     */
-    public function index()
-    {
-        $users = $this->paginate($this->Users);
-
-        $this->set(compact('users'));
-        $this->set('_serialize', ['users']);
-    }
-
-    /**
-     * View method
-     *
-     * @param string|null $id User id.
-     * @return \Cake\Network\Response|null
-     * @throws \Cake\Datasource\Exception\RecordNotFoundException When record not found.
-     */
-    public function view($id = null)
-    {
-        $user = $this->Users->get($id, [
-            'contain' => ['TranslationMemories']
-        ]);
-
-        $this->set('user', $user);
-        $this->set('_serialize', ['user']);
-    }
 
     /**
      * Add method
@@ -104,7 +75,7 @@ class UsersController extends AppController
         if ($this->Auth->user()['role_id'] != 1 && $this->Auth->user()['id'] != $id) {
             $this->redirect('/');
         }
-        
+
         $user = $this->Users->get($id, [
             'contain' => []
         ]);
@@ -123,7 +94,7 @@ class UsersController extends AppController
     }
 
     public function changepassword($id = null)
-    {    
+    {
         $user = $this->Users->get($this->Auth->user()['id'], [
             'contain' => []
         ]);
@@ -139,7 +110,7 @@ class UsersController extends AppController
 		        }
 		    } else {
 	            $this->Flash->error(__('Passwords do not match, try again.'));
-                return $this->redirect(['action' => 'changepassword']);		    
+                return $this->redirect(['action' => 'changepassword']);
 		    }
         }
         $this->set(compact('user'));
