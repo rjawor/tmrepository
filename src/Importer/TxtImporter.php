@@ -44,7 +44,6 @@ class TxtImporter implements Importer
         $src = fopen($sourceFilePath, 'r');
         $trg = fopen($targetFilePath, 'r');
 
-        $units = array();
         $unitsTable = TableRegistry::get('Units');
         for ($i = 0; $i < $src_count; ++$i) {
             $src_line = trim(fgets($src));
@@ -52,14 +51,11 @@ class TxtImporter implements Importer
             $unit = $unitsTable->newEntity();
             $unit->source_segment = $src_line;
             $unit->target_segment = $trg_line;
-            array_push($units, $unit);
+            $unit->translation_memory_id = $translationMemory->id;
+            $unitsTable->save($unit);
         }
 
         fclose($src);
         fclose($trg);
-
-        $translationMemory->units = $units;
-		$tmTable = TableRegistry::get('TranslationMemories');
-        $tmTable->save($translationMemory);
     }
 }

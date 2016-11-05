@@ -104,7 +104,6 @@ class DocImporter implements Importer
 
 
         $aligned = fopen($folder.'/aligned.txt', 'r');
-        $units = array();
         $unitsTable = TableRegistry::get('Units');
         while (($line = fgets($aligned)) !== false)
         {
@@ -117,14 +116,11 @@ class DocImporter implements Importer
                 $unit = $unitsTable->newEntity();
                 $unit->source_segment = $sourceSentence;
                 $unit->target_segment = $targetSentence;
-                array_push($units, $unit);
+                $unit->translation_memory_id = $translationMemory->id;
+                $unitsTable->save($unit);
             }
         }
 
         fclose($aligned);
-
-        $translationMemory->units = $units;
-		$tmTable = TableRegistry::get('TranslationMemories');
-        $tmTable->save($translationMemory);
     }
 }
