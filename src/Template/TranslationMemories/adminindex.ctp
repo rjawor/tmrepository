@@ -37,10 +37,10 @@
                 <td><?= $translationMemory->tm_type->name ?></td>
                 <td><?= $translationMemory->user->username ?></td>
                 <td><?= isset($unitCounts[$translationMemory->id])?$unitCounts[$translationMemory->id]:0 ?></td>
-                <td><?= $translationMemory->source_language->name ?>&nbsp;&rarr;&nbsp;<?= $translationMemory->target_language->name ?></td>
+                <td><?= $translationMemory->source_language->code ?>&nbsp;&rarr;&nbsp;<?= $translationMemory->target_language->code ?></td>
                 <td class="actions">
                     <a href="/tmrepository/translation-memories/view/<?= $translationMemory->id ?>" title="View translation memory"><img src="/tmrepository/img/view.png" /></a>
-                    <a href="/tmrepository/translation-memories/edit/<?= $translationMemory->id ?>" title="Edit translation memory info"><img src="/tmrepository/img/edit.png" /></a>
+                    <a href="/tmrepository/translation-memories/edit/<?= $translationMemory->id ?>" title="Edit translation memory info"><img src="/tmrepository/img/edit.png" /></a><br/>
 
                     <form name="post_delete_<?= $translationMemory->id ?>" style="display:none;" method="post" action="/tmrepository/translation-memories/delete/<?= $translationMemory->id ?>"><input type="hidden" name="_method" value="POST"></form>
                     <a href="#" title="Delete translation memory" onclick="if (confirm(&quot;Are you sure you want to delete this translation memory?&quot;)) { document.post_delete_<?= $translationMemory->id ?>.submit(); } event.returnValue = false; return false;"><img src="/tmrepository/img/delete.png"/></a>

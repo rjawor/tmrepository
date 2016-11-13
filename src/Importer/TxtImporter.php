@@ -44,16 +44,41 @@ class TxtImporter implements Importer
         $src = fopen($sourceFilePath, 'r');
         $trg = fopen($targetFilePath, 'r');
 
-        $unitsTable = TableRegistry::get('Units');
+        $tmTable = TableRegistry::get('TranslationMemories');
+
+        $unitsBuffer = array();
+        $unitsBufferSize = 1;
         for ($i = 0; $i < $src_count; ++$i) {
             $src_line = trim(fgets($src));
             $trg_line = trim(fgets($trg));
-            $unit = $unitsTable->newEntity();
-            $unit->source_segment = $src_line;
-            $unit->target_segment = $trg_line;
-            $unit->translation_memory_id = $translationMemory->id;
-            $unitsTable->save($unit);
+            if ($src_line != '' && $trg_line != '')
+            {
+                array_push($unitsBuffer, [
+                    'source_segment' => $src_line,
+                    'target_segment' => $trg_line
+                ]);
+            }
+
+            if (count($unitsBuffer) >= $unitsBufferSize)
+            {
+                $translationMemory->units = $tmTable->Units->newEntities($unitsBuffer);
+                if (! $tmTable->save($translationMemory)) {
+                    throw new Exception("Error saving units!");
+                }
+                $unitsBuffer = array();
+            }
+
         }
+
+        if (count($unitsBuffer) > 0)
+        {
+            $translationMemory->units = $tmTable->Units->newEntities($unitsBuffer);
+            if (! $tmTable->save($translationMemory)) {
+                throw new Exception("Error saving units!");
+            }
+            $unitsBuffer = array();
+        }
+
 
         fclose($src);
         fclose($trg);
