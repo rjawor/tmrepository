@@ -39,48 +39,12 @@ class TxtImporter implements Importer
         if ($src_count != $trg_count)
 		{
 			throw new Exception('Files have different number of lines (source = '.$src_count.' lines, target = '.$trg_count.' lines.)');
-		}
-
-        $src = fopen($sourceFilePath, 'r');
-        $trg = fopen($targetFilePath, 'r');
-
-        $tmTable = TableRegistry::get('TranslationMemories');
-
-        $unitsBuffer = array();
-        $unitsBufferSize = 1;
-        for ($i = 0; $i < $src_count; ++$i) {
-            $src_line = trim(fgets($src));
-            $trg_line = trim(fgets($trg));
-            if ($src_line != '' && $trg_line != '')
+		} else {
+            system("/var/www/html/tmrepository/import/insert_units.py ".$translationMemory->id." ".$sourceFilePath." ".$targetFilePath, $retval);
+            if ($retval != 0)
             {
-                array_push($unitsBuffer, [
-                    'source_segment' => $src_line,
-                    'target_segment' => $trg_line
-                ]);
+            	throw new Exception("Error importing units to the translation memory id = ".$translationMemory->id.". Try to upload the translation memory again.");
             }
-
-            if (count($unitsBuffer) >= $unitsBufferSize)
-            {
-                $translationMemory->units = $tmTable->Units->newEntities($unitsBuffer);
-                if (! $tmTable->save($translationMemory)) {
-                    throw new Exception("Error saving units!");
-                }
-                $unitsBuffer = array();
-            }
-
         }
-
-        if (count($unitsBuffer) > 0)
-        {
-            $translationMemory->units = $tmTable->Units->newEntities($unitsBuffer);
-            if (! $tmTable->save($translationMemory)) {
-                throw new Exception("Error saving units!");
-            }
-            $unitsBuffer = array();
-        }
-
-
-        fclose($src);
-        fclose($trg);
     }
 }
