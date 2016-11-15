@@ -43,8 +43,8 @@
  	  	</tr>
 		<?php foreach ($units as $unit): ?>
 		<tr>
-			<td><?= $unit->source_segment ?></td>
-			<td><?= $unit->target_segment ?></td>
+			<td><?= h($unit->source_segment) ?></td>
+			<td><?= h($unit->target_segment) ?></td>
 		</tr>
 		<?php endforeach; ?>
     </table>
