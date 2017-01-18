@@ -58,13 +58,14 @@ class TranslationMemoriesController extends AppController
 
         $unitsTable = TableRegistry::get('Units');
         $query = $unitsTable->find();
+        $totalCount = $query->count();
         $countsRaw = $query->select(['translation_memory_id', 'unit_count' => $query->func()->count('id')])->group('translation_memory_id');
         $unitCounts = array();
         foreach ($countsRaw as $count) {
             $unitCounts[$count->translation_memory_id] = $count->unit_count;
         }
-        $this->set(compact('translationMemories'));
-        $this->set(compact('unitCounts'));
+
+        $this->set(compact('translationMemories','unitCounts', 'totalCount'));
         $this->set('_serialize', ['translationMemories']);
     }
 

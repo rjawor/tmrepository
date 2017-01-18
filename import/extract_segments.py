@@ -12,9 +12,9 @@ with open(sys.argv[1], 'w') as src, open(sys.argv[3], 'w') as trg:
 		trg_segment = None
 		segments = re.findall(r'<tuv\s+xml:lang="([A-Za-z\-]+)">\s*<seg>\s*(<S.*?>)?(.*?)(</S>)?\s*</seg>\s*</tuv>', line)
 		for segment in segments:
-			if segment[0].startswith(srcLang):
+			if segment[0].lower().startswith(srcLang.lower()):
 				src_segment = segment[2]
-			elif segment[0].startswith(trgLang):
+			elif segment[0].lower().startswith(trgLang.lower()):
 				trg_segment = segment[2]
 		if (not src_segment is None) and (not trg_segment is None):
 			src.write(src_segment+'\n')

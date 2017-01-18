@@ -25,11 +25,11 @@ class TxtImporter implements Importer
     {
         if (!file_exists($sourceFilePath) || filesize($sourceFilePath) == 0)
 		{
-			throw new Exception("Missing or empty source file");
+			throw new Exception("Missing or empty source file. If you were importing a TMX, double-check the xml:lang param in source <tuv>'s.");
 		}
 		if (!file_exists($targetFilePath) || filesize($targetFilePath) == 0)
 		{
-			throw new Exception("Missing or empty target file");
+			throw new Exception("Missing or empty target file. If you were importing a TMX, double-check the xml:lang param in target <tuv>'s.");
 		}
 
 

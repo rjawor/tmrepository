@@ -16,7 +16,8 @@
     </ul>
 </nav>
 <div class="translationMemories index large-9 medium-8 columns content">
-    <h3><?= __('My translation memories') ?></h3>
+    <h3><?= __('All translation memories') ?></h3>
+    <h5>Total number of units in all the TMs: <?=$totalCount?></h5>
     <table cellpadding="0" cellspacing="0">
         <thead>
             <tr>
