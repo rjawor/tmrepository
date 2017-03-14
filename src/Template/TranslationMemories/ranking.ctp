@@ -17,7 +17,7 @@
                 <th scope="col" width="50px">Rank</th>
                 <th scope="col">User</th>
                 <th scope="col">Total units count</th>
-                <th scope="col">TM titles</th>
+                <th scope="col" width="60%">TM titles</th>
             </tr>
         </thead>
         <tbody>
