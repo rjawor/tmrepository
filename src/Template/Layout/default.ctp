@@ -53,6 +53,7 @@
                 <?php
                 }
                 ?>
+                <li><a href="/tmrepository/translation-memories/ranking">Ranking</a></li>
             </ul>
             <ul class="right">
               <li>

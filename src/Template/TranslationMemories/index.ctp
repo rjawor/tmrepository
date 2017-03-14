@@ -17,7 +17,7 @@
                 <th scope="col" width="50px">Id</th>
                 <th scope="col"><?= $this->Paginator->sort('title') ?></th>
                 <th scope="col"><?= $this->Paginator->sort('tm_type_id') ?></th>
-                <th scope="col" width="70px">Units</th>
+                <th scope="col" width="120px">Units</th>
                 <th scope="col">Direction</th>
                 <th scope="col" class="actions"><?= __('Actions') ?></th>
             </tr>
@@ -28,7 +28,7 @@
                 <td><?= $translationMemory->id ?></td>
                 <td><?= $this->Html->link($translationMemory->title, ['action' => 'view', $translationMemory->id]) ?></td>
                 <td><?= $translationMemory->tm_type->name ?></td>
-                <td><?= isset($unitCounts[$translationMemory->id])?$unitCounts[$translationMemory->id]:0 ?></td>
+                <td><?= isset($unitCounts[$translationMemory->id])?number_format($unitCounts[$translationMemory->id],0,'.',' '):0 ?></td>
                 <td><?= $translationMemory->source_language->code ?>&nbsp;&rarr;&nbsp;<?= $translationMemory->target_language->code ?></td>
                 <td class="actions">
                     <a href="/tmrepository/translation-memories/view/<?= $translationMemory->id ?>" title="View translation memory"><img src="/tmrepository/img/view.png" /></a>

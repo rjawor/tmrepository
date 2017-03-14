@@ -17,7 +17,7 @@
 </nav>
 <div class="translationMemories index large-9 medium-8 columns content">
     <h3><?= __('All translation memories') ?></h3>
-    <h5>Total number of units in all the TMs: <?=$totalCount?></h5>
+    <h5>Total number of units in all the TMs: <?=number_format($totalCount, 0, '.', ' ') ?></h5>
     <table cellpadding="0" cellspacing="0">
         <thead>
             <tr>
@@ -25,7 +25,7 @@
                 <th scope="col"><?= $this->Paginator->sort('title') ?></th>
                 <th scope="col"><?= $this->Paginator->sort('tm_type_id') ?></th>
                 <th scope="col">Owner</th>
-                <th scope="col" width="70px">Units</th>
+                <th scope="col" width="120px">Units</th>
                 <th scope="col">Direction</th>
                 <th scope="col" class="actions"><?= __('Actions') ?></th>
             </tr>
@@ -37,7 +37,7 @@
                 <td><?= $this->Html->link($translationMemory->title, ['action' => 'view', $translationMemory->id]) ?></td>
                 <td><?= $translationMemory->tm_type->name ?></td>
                 <td><?= $translationMemory->user->username ?></td>
-                <td><?= isset($unitCounts[$translationMemory->id])?$unitCounts[$translationMemory->id]:0 ?></td>
+                <td><?= isset($unitCounts[$translationMemory->id])?number_format($unitCounts[$translationMemory->id], 0, '.', ' '):0 ?></td>
                 <td><?= $translationMemory->source_language->code ?>&nbsp;&rarr;&nbsp;<?= $translationMemory->target_language->code ?></td>
                 <td class="actions">
                     <a href="/tmrepository/translation-memories/view/<?= $translationMemory->id ?>" title="View translation memory"><img src="/tmrepository/img/view.png" /></a>

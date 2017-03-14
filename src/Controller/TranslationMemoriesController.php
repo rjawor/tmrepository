@@ -6,6 +6,7 @@ use Cake\Core\Exception\Exception;
 use Cake\ORM\TableRegistry;
 use App\Exporter\ExporterFactory;
 use App\Importer\ImporterFactory;
+use Cake\Datasource\ConnectionManager;
 
 /**
  * TranslationMemories Controller.
@@ -43,6 +44,13 @@ class TranslationMemoriesController extends AppController
         $this->set(compact('translationMemories'));
         $this->set(compact('unitCounts'));
         $this->set('_serialize', ['translationMemories']);
+    }
+
+    public function ranking()
+    {
+        $conn = ConnectionManager::get('default');
+        $ranking = $conn->execute('select users.username, group_concat(distinct translation_memories.title) as titles, count(units.id) as unit_count from users inner join translation_memories on users.id = translation_memories.user_id inner join units on translation_memories.id = units.translation_memory_id group by users.id order by unit_count desc;');
+        $this->set('ranking', $ranking);
     }
 
     public function adminindex()
