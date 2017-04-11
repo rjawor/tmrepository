@@ -46,14 +46,15 @@
             <ul class="left">
                 <li><a href="/tmrepository">Home</a></li>
                 <li><a href="/tmrepository/translation-memories">My translation memories</a></li>
+                <li><a href="/tmrepository/translation-memories/ranking">Ranking</a></li>
                 <?php
                 if (isset($user) && $user['role_id'] == 1) {
                 ?>
                 <li><a href="/tmrepository/translation-memories/adminindex">All translation memories</a></li>
+                <li><a href="/tmrepository/config">Configuration</a></li>
                 <?php
                 }
                 ?>
-                <li><a href="/tmrepository/translation-memories/ranking">Ranking</a></li>
             </ul>
             <ul class="right">
               <li>

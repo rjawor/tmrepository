@@ -13,6 +13,7 @@ use Cake\Validation\Validator;
  * @property \Cake\ORM\Association\BelongsTo $Languages
  * @property \Cake\ORM\Association\BelongsTo $Languages
  * @property \Cake\ORM\Association\BelongsTo $TmTypes
+ * @property \Cake\ORM\Association\BelongsTo $Domains
  *
  * @method \App\Model\Entity\TranslationMemory get($primaryKey, $options = [])
  * @method \App\Model\Entity\TranslationMemory newEntity($data = null, array $options = [])
@@ -57,6 +58,10 @@ class TranslationMemoriesTable extends Table
             'foreignKey' => 'tm_type_id',
             'joinType' => 'INNER'
         ]);
+        $this->belongsTo('Domains', [
+            'foreignKey' => 'domain_id',
+            'joinType' => 'LEFT'
+        ]);
         $this->hasMany('Units', [
         	'dependent' => true
         ]);
@@ -96,6 +101,7 @@ class TranslationMemoriesTable extends Table
         $rules->add($rules->existsIn(['source_language_id'], 'SourceLanguage'));
         $rules->add($rules->existsIn(['target_language_id'], 'TargetLanguage'));
         $rules->add($rules->existsIn(['tm_type_id'], 'TmTypes'));
+        $rules->add($rules->existsIn(['domain_id'], 'Domains'));
 
         return $rules;
     }

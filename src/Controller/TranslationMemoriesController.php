@@ -30,9 +30,9 @@ class TranslationMemoriesController extends AppController
     public function index()
     {
         $this->paginate = [
-            'contain' => ['Users', 'SourceLanguage', 'TargetLanguage', 'TmTypes'],
+            'contain' => ['Users', 'SourceLanguage', 'TargetLanguage', 'TmTypes', 'Domains'],
         ];
-        $translationMemories = $this->paginate($this->TranslationMemories->find('all')->where(['TranslationMemories.user_id' => $this->Auth->user()['id']])->order(['TranslationMemories.id' => 'ASC']));
+        $translationMemories = $this->paginate($this->TranslationMemories->find('all')->where(['TranslationMemories.user_id' => $this->Auth->user()['id']]));
 
         $unitsTable = TableRegistry::get('Units');
         $query = $unitsTable->find();
@@ -60,9 +60,9 @@ class TranslationMemoriesController extends AppController
             $this->redirect('/');
         }
         $this->paginate = [
-            'contain' => ['Users', 'SourceLanguage', 'TargetLanguage', 'TmTypes'],
+            'contain' => ['Users', 'SourceLanguage', 'TargetLanguage', 'TmTypes', 'Domains'],
         ];
-        $translationMemories = $this->paginate($this->TranslationMemories->find('all')->order(['TranslationMemories.id' => 'ASC']));
+        $translationMemories = $this->paginate($this->TranslationMemories->find('all'));
 
         $unitsTable = TableRegistry::get('Units');
         $query = $unitsTable->find();
@@ -116,6 +116,10 @@ class TranslationMemoriesController extends AppController
                 function ($exp, $q) {
                     return $exp->in('tm_type_id', $this->request->data['tm_types']);
                 }
+            )->where(
+                function ($exp, $q) {
+                    return $exp->in('domain_id', $this->request->data['domains']);
+                }
             )->where([
                 'source_language_id' => $this->request->data['source_language_id'],
                 'target_language_id' => $this->request->data['target_language_id']
@@ -145,8 +149,9 @@ class TranslationMemoriesController extends AppController
         }
         $languages = $this->TranslationMemories->SourceLanguage->find('list');
         $tmTypes = $this->TranslationMemories->TmTypes->find('list', ['limit' => 200]);
-        $this->set(compact('languages', 'tmTypes'));
-        $this->set('_serialize', ['languages', 'tmTypes']);
+        $domains = $this->TranslationMemories->Domains->find('list', ['limit' => 200]);
+        $this->set(compact('languages', 'tmTypes', 'domains'));
+        $this->set('_serialize', ['languages', 'tmTypes', 'domains']);
 
     }
 
@@ -224,7 +229,8 @@ class TranslationMemoriesController extends AppController
         }
         $languages = $this->TranslationMemories->SourceLanguage->find('list', ['limit' => 200]);
         $tmTypes = $this->TranslationMemories->TmTypes->find('list', ['limit' => 200]);
-        $this->set(compact('translationMemory', 'languages', 'tmTypes'));
+        $domains = $this->TranslationMemories->Domains->find('list', ['limit' => 200]);
+        $this->set(compact('translationMemory', 'languages', 'tmTypes', 'domains'));
         $this->set('_serialize', ['translationMemory']);
     }
 
@@ -240,7 +246,7 @@ class TranslationMemoriesController extends AppController
     public function edit($id = null)
     {
         $translationMemory = $this->TranslationMemories->get($id, [
-            'contain' => ['SourceLanguage', 'TargetLanguage', 'TmTypes'],
+            'contain' => ['SourceLanguage', 'TargetLanguage', 'TmTypes', 'Domains'],
         ]);
         $this->_restrictAccess($translationMemory);
         if ($this->request->is(['patch', 'post', 'put'])) {
@@ -255,7 +261,33 @@ class TranslationMemoriesController extends AppController
         }
         $languages = $this->TranslationMemories->SourceLanguage->find('list', ['limit' => 200]);
         $tmTypes = $this->TranslationMemories->TmTypes->find('list', ['limit' => 200]);
-        $this->set(compact('translationMemory', 'languages', 'tmTypes'));
+        $domains = $this->TranslationMemories->Domains->find('list', ['limit' => 200]);
+        $this->set(compact('translationMemory', 'languages', 'tmTypes', 'domains'));
+        $this->set('_serialize', ['translationMemory']);
+    }
+
+
+    public function expand($id = null)
+    {
+        $translationMemory = $this->TranslationMemories->get($id);
+        $this->_restrictAccess($translationMemory);
+        if ($this->request->is(['patch', 'post', 'put'])) {
+            try {
+                $importer = ImporterFactory::createForFormat($this->request->data['import_format']);
+                $importer->importUnits($translationMemory,
+                                       $_FILES['source_file']['tmp_name'],
+                                       $this->request->data['source_language_id'],
+                                       $_FILES['target_file']['tmp_name'],
+                                       $this->request->data['target_language_id']);
+                $this->Flash->success(__('The translation memory has been expanded.'));
+                return $this->redirect(['action' => 'view', $translationMemory->id]);
+            } catch (Exception $e) {
+                $this->Flash->error('The following error occured: "'.$e->getMessage().'". Please try again.');
+                return $this->redirect(['action' => 'expand', $translationMemory->id]);
+            }
+
+        }
+        $this->set(compact('translationMemory'));
         $this->set('_serialize', ['translationMemory']);
     }
 

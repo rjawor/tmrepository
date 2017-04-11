@@ -8,4 +8,6 @@
     </fieldset>
 <?= $this->Form->button(__('Login')); ?>
 <?= $this->Form->end() ?>
+
+Note: you can log in with the guest account: login=guest, password=(the capital of Spain, lowercased)
 </div>

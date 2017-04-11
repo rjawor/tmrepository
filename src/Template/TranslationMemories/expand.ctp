@@ -11,17 +11,12 @@
 </nav>
 <div class="translationMemories form large-9 medium-8 columns content">
     <?= $this->Form->create($translationMemory, ['type' => 'file']) ?>
+    <input type="hidden" name="id" value="<?= $translationMemory->id ?>" />
+    <input type="hidden" name="source_language_id" value="<?= $translationMemory->source_language_id ?>" />
+    <input type="hidden" name="target_language_id" value="<?= $translationMemory->target_language_id ?>" />
     <fieldset>
-        <legend><?= __('Upload a new translation memory') ?></legend>
-        <?php
-            echo $this->Form->input('title');
-            echo $this->Form->input('description');
-            echo $this->Form->input('source_language_id', ['options' => $languages, 'default' => 1]);
-            echo $this->Form->input('target_language_id', ['options' => $languages, 'default' => 2]);
-            echo $this->Form->input('tm_type_id', ['options' => $tmTypes]);
-            echo $this->Form->input('domain_id', ['options' => $domains]);
-        ?>
-        <label for="upload-format">Translation memory format</label>
+        <legend><?= __('Expand the translation memory') ?>: <?=$translationMemory->title ?></legend>
+        <label for="upload-format">File format</label>
 		<input id="upload-format" type="radio" name="import_format" value="txt"  onclick="showTargetFile()" checked>TXT - two .txt files, one sentence per line, equal number of lines in the files<br>
 		<input type="radio" name="import_format" value="doc" onclick="showTargetFile()">DOC/DOCX - two word documents<br>
 		<input type="radio" name="import_format" value="tmx" onclick="hideTargetFile()">TMX - a .tmx file<br><br>

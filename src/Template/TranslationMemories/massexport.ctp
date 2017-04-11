@@ -26,7 +26,11 @@
     ?>
     <h5>Filter translation memories by type</h5>
     <?php
-    echo $this->Form->input('tm_types', ['label'=>'','multiple'=> 'checkbox', 'options' => $tmTypes, 'default' => [1, 2, 3, 4]]);
+    echo $this->Form->input('tm_types', ['label'=>'','multiple'=> 'checkbox', 'options' => $tmTypes, 'default' => range(1,$tmTypes->count())]);
+    ?>
+    <h5>Filter translation memories by domain</h5>
+    <?php
+    echo $this->Form->input('domains', ['label'=>'','multiple'=> 'checkbox', 'options' => $domains, 'default' => range(1,$domains->count())]);
     ?>
     <h5>Export format</h5>
     <?= $this->Form->radio(

@@ -77,6 +77,16 @@ CREATE TABLE IF NOT EXISTS `tmrepository`.`tm_types` (
   PRIMARY KEY (`id`))
 ENGINE = InnoDB;
 
+-- -----------------------------------------------------
+-- Table `tmrepository`.`domains`
+-- -----------------------------------------------------
+DROP TABLE IF EXISTS `tmrepository`.`domains` ;
+
+CREATE TABLE IF NOT EXISTS `tmrepository`.`domains` (
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `name` VARCHAR(45) NULL,
+  PRIMARY KEY (`id`))
+ENGINE = InnoDB;
 
 -- -----------------------------------------------------
 -- Table `tmrepository`.`translation_memories`
@@ -91,11 +101,13 @@ CREATE TABLE IF NOT EXISTS `tmrepository`.`translation_memories` (
   `source_language_id` INT NOT NULL,
   `target_language_id` INT NOT NULL,
   `tm_type_id` INT NOT NULL,
+  `domain_id` INT DEFAULT NULL,
   PRIMARY KEY (`id`),
   INDEX `fk_translation_memories_users_idx` (`user_id` ASC),
   INDEX `fk_translation_memories_languages1_idx` (`source_language_id` ASC),
   INDEX `fk_translation_memories_languages2_idx` (`target_language_id` ASC),
   INDEX `fk_translation_memories_tm_types1_idx` (`tm_type_id` ASC),
+  INDEX `fk_translation_memories_domains_idx` (`domain_id` ASC),
   CONSTRAINT `fk_translation_memories_users`
     FOREIGN KEY (`user_id`)
     REFERENCES `tmrepository`.`users` (`id`)
