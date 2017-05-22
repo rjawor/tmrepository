@@ -46,10 +46,34 @@ class TranslationMemoriesController extends AppController
         $this->set('_serialize', ['translationMemories']);
     }
 
+    private static function compare_users($user1, $user2)
+    {
+        return ($user2['unit_count']+$user2['review_points']) - ($user1['unit_count']+$user1['review_points']);
+    }
+
+
     public function ranking()
     {
         $conn = ConnectionManager::get('default');
-        $ranking = $conn->execute('select users.username, group_concat(distinct translation_memories.title) as titles, count(units.id) as unit_count from users inner join translation_memories on users.id = translation_memories.user_id inner join units on translation_memories.id = units.translation_memory_id group by users.id order by unit_count desc;');
+        $ranking = $conn->execute('select users.id, users.username, group_concat(distinct translation_memories.title separator \', \') as titles, count(units.id) as unit_count from users inner join translation_memories on users.id = translation_memories.user_id and translation_memories.tm_type_id != 5 inner join units on translation_memories.id = units.translation_memory_id group by users.id;')->fetchAll('assoc');
+
+        $reviewPointsArray = $conn->execute('select users.id, sum(reviews.units_checked) as units_checked from users inner join reviews on users.id = reviews.user_id group by users.id')->fetchAll('assoc');
+
+        $reviewPoints = array();
+        foreach($reviewPointsArray as $row) {
+            $reviewPoints[$row['id']] = $row['units_checked'];
+        }
+
+        for($i = 0;$i<count($ranking);$i++) {
+
+            if (array_key_exists($ranking[$i]['id'],$reviewPoints)) {
+                $ranking[$i]['review_points'] = 10*$reviewPoints[$ranking[$i]['id']];
+            } else {
+                $ranking[$i]['review_points'] = 0;
+            }
+        }
+        usort($ranking, 'self::compare_users');
+
         $this->set('ranking', $ranking);
     }
 
@@ -94,7 +118,12 @@ class TranslationMemoriesController extends AppController
         $unitsTable = TableRegistry::get('Units');
         $units = $this->paginate($unitsTable->find('all')->where(['Units.translation_memory_id' => $id]));
 
-        $this->set(compact('translationMemory', 'units'));
+        $conn = ConnectionManager::get('default');
+        $quality = $conn->execute('select count(*) as review_count, sum(review) as accepted_count from units where translation_memory_id = '.$id.' and review is not null')->fetchAll('assoc');
+        $reviewCount = $quality[0]['review_count'];
+        $acceptedCount = $quality[0]['accepted_count'];
+
+        $this->set(compact('translationMemory', 'units', 'reviewCount', 'acceptedCount'));
         $this->set('_serialize', ['translationMemory, units']);
     }
 

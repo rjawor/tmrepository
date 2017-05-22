@@ -16,8 +16,10 @@
             <tr>
                 <th scope="col" width="50px">Rank</th>
                 <th scope="col">User</th>
-                <th scope="col">Total units count</th>
-                <th scope="col" width="60%">TM titles</th>
+                <th scope="col">Units count</th>
+                <th scope="col">Review points</th>
+                <th scope="col">Total score</th>
+                <th scope="col" width="50%">TM titles</th>
             </tr>
         </thead>
         <tbody>
@@ -51,6 +53,8 @@
                 </td>
                 <td><?= $rankingRow['username'] ?></td>
                 <td><?= number_format($rankingRow['unit_count'], 0, '.', ' ') ?></td>
+                <td><?= number_format($rankingRow['review_points'], 0, '.', ' ') ?></td>
+                <td><?= number_format($rankingRow['unit_count']+$rankingRow['review_points'], 0, '.', ' ') ?></td>
                 <td><?= $rankingRow['titles'] ?></td>
             </tr>
             <?php endforeach;?>

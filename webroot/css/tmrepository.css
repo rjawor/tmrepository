@@ -9,3 +9,7 @@
 .bronze-medal {
     background-color: #ffe4bf;
 }
+
+.review-area {
+    cursor: pointer;
+}

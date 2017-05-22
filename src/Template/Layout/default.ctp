@@ -26,10 +26,10 @@
 
     <?= $this->Html->css('base.css') ?>
     <?= $this->Html->css('cake.css') ?>
-    <?= $this->Html->css('tmrepository.css') ?>
+    <?= $this->Html->css('tmrepository.css?version='.date("Ymdhis")) ?>
 
     <?= $this->Html->script('jquery-3.1.0.min.js') ?>
-    <?= $this->Html->script('tmrepository.js') ?>
+    <?= $this->Html->script('tmrepository.js?version='.date("Ymdhis")) ?>
 
     <?= $this->fetch('meta') ?>
     <?= $this->fetch('css') ?>
@@ -45,13 +45,14 @@
         <div class="top-bar-section">
             <ul class="left">
                 <li><a href="/tmrepository">Home</a></li>
-                <li><a href="/tmrepository/translation-memories">My translation memories</a></li>
+                <li><a href="/tmrepository/translation-memories">My TMs</a></li>
                 <li><a href="/tmrepository/translation-memories/ranking">Ranking</a></li>
+                <li><a href="/tmrepository/reviews">Reviews</a></li>
                 <?php
                 if (isset($user) && $user['role_id'] == 1) {
                 ?>
-                <li><a href="/tmrepository/translation-memories/adminindex">All translation memories</a></li>
-                <li><a href="/tmrepository/config">Configuration</a></li>
+                <li><a href="/tmrepository/translation-memories/adminindex">All TMs</a></li>
+                <li><a href="/tmrepository/config">Config</a></li>
                 <?php
                 }
                 ?>

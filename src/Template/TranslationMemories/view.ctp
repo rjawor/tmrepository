@@ -42,6 +42,19 @@
     <p>
     <?= h($translationMemory->description) ?>
     </p>
+    <p>
+        <?php
+        if ($translationMemory->tm_type_id == 5) {
+            echo "This is a renowned corpus and it is not reviewed.";
+        }
+        else if ($reviewCount == 0) {
+            echo "This translation memory has not been reviewed.";
+        } else {
+            $percentage = 100*$acceptedCount/$reviewCount;
+            echo "Number of units checked: ".$reviewCount.", accepted: ".$acceptedCount." (".number_format($percentage, 1, '.', ' ')."%).";
+        }
+        ?>
+    </p>
     <table>
 		<tr>
  	  		<th scope="col">Source segment</th>

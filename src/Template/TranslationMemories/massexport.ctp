@@ -22,16 +22,33 @@
     <?php
     echo $this->Form->input('source_language_id', ['options' => $languages, 'default' => 1]);
     echo $this->Form->input('target_language_id', ['options' => $languages, 'default' => 2]);
-    echo $this->Form->input('reversed', ['type' => 'checkbox', 'label' => 'Allow translation memories in the reversed direction' ]);
+    echo $this->Form->input('reversed', ['type' => 'checkbox', 'checked'=>true, 'label' => 'Allow translation memories in the reversed direction' ]);
     ?>
     <h5>Filter translation memories by type</h5>
-    <?php
-    echo $this->Form->input('tm_types', ['label'=>'','multiple'=> 'checkbox', 'options' => $tmTypes, 'default' => range(1,$tmTypes->count())]);
-    ?>
+    <div class="input select">
+        <label for="tm_types"></label>
+        <input type="hidden" name="tm_types" value=""/>
+        <?php foreach (array_keys($tmTypes->toArray()) as $typeId) { ?>
+        <div class="checkbox">
+            <label for="tm_types-<?= $typeId ?>">
+                <input type="checkbox" checked="checked" name="tm_types[]" value="<?= $typeId ?>" id="tm_types-<?= $typeId ?>"><?= $tmTypes->toArray()[$typeId]?>
+            </label>
+        </div>
+        <?php }?>
+    </div>
     <h5>Filter translation memories by domain</h5>
-    <?php
-    echo $this->Form->input('domains', ['label'=>'','multiple'=> 'checkbox', 'options' => $domains, 'default' => range(1,$domains->count())]);
-    ?>
+        <div class="input select">
+            <label for="domains"></label>
+            <input type="hidden" name="domains" value=""/>
+            <?php foreach (array_keys($domains->toArray()) as $domainId) { ?>
+            <div class="checkbox">
+                <label for="domains-<?= $domainId ?>">
+                    <input type="checkbox" checked="checked" name="domains[]" value="<?= $domainId ?>" id="domains-<?= $domainId ?>"><?= $domains->toArray()[$domainId]?>
+                </label>
+            </div>
+            <?php }?>
+        </div>
+
     <h5>Export format</h5>
     <?= $this->Form->radio(
 							'export_format',

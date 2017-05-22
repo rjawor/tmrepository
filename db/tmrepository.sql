@@ -141,6 +141,8 @@ CREATE TABLE IF NOT EXISTS `tmrepository`.`units` (
   `translation_memory_id` INT NOT NULL,
   `source_segment` TEXT NULL,
   `target_segment` TEXT NULL,
+  `review` TINYINT NULL,
+  `reviewer_id` INT NULL,
   PRIMARY KEY (`id`),
   INDEX `fk_units_translation_memories1_idx` (`translation_memory_id` ASC),
   CONSTRAINT `fk_units_translation_memories1`
@@ -150,6 +152,23 @@ CREATE TABLE IF NOT EXISTS `tmrepository`.`units` (
     ON UPDATE NO ACTION)
 ENGINE = InnoDB;
 
+-- -----------------------------------------------------
+-- Table `tmrepository`.`reviews`
+-- -----------------------------------------------------
+DROP TABLE IF EXISTS `tmrepository`.`reviews` ;
+
+CREATE TABLE IF NOT EXISTS `tmrepository`.`reviews` (
+  `id` INT NOT NULL AUTO_INCREMENT,
+  `user_id` INT NOT NULL,
+  `units_checked` INT NULL,
+  PRIMARY KEY (`id`),
+  INDEX `fk_reviews_users_idx` (`user_id` ASC),
+  CONSTRAINT `fk_reviews_users`
+    FOREIGN KEY (`user_id`)
+    REFERENCES `tmrepository`.`users` (`id`)
+    ON DELETE NO ACTION
+    ON UPDATE NO ACTION)
+ENGINE = InnoDB;
 
 SET SQL_MODE=@OLD_SQL_MODE;
 SET FOREIGN_KEY_CHECKS=@OLD_FOREIGN_KEY_CHECKS;
